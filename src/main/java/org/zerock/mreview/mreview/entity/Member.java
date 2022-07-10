@@ -3,6 +3,8 @@ package org.zerock.mreview.mreview.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Builder
@@ -22,4 +24,12 @@ public class Member extends BaseEntity {
     private String pw;
 
     private String nickname;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @Builder.Default
+    private Set<MemberRole> roleSet = new HashSet<>();
+
+    public void addMemberRole(MemberRole clubMemberRole) {
+        roleSet.add(clubMemberRole);
+    }
 }

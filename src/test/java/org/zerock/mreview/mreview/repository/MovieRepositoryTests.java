@@ -8,10 +8,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
+import org.zerock.mreview.mreview.entity.Member;
 import org.zerock.mreview.mreview.entity.Movie;
 import org.zerock.mreview.mreview.entity.MovieImage;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
@@ -24,12 +27,16 @@ public class MovieRepositoryTests {
     @Autowired
     private MovieImageRepository imageRepository;
 
+    @Autowired
+    private MemberRepository memberRepository;
+
     @Commit
     @Transactional
     @Test
     public void insertMovies(){
         IntStream.rangeClosed(1,100).forEach(i -> {
-            Movie movie = Movie.builder().title("wallE V" + i).build();
+            Optional<Member> member = memberRepository.findById(Long.valueOf(i));
+            Movie movie = Movie.builder().title(i+"번째 게시물").contents(i + "번째 게시물의 내용이네요").member(member.get()).build();
             System.out.println("----------------");
             movieRepository.save(movie);
 
@@ -53,6 +60,17 @@ public class MovieRepositoryTests {
         for (Object[] objects : result.getContent()) {
             System.out.println(Arrays.toString(objects));
 
+        }
+    }
+
+    @Test
+    public void testGetMovieWithAll(){
+        List<Object[]> result = movieRepository.getMovieWithAll(95L);
+
+        System.out.println("result = " + result);
+
+        for (Object[] arr : result) {
+            System.out.println("Arrays.toString(arr) = " + Arrays.toString(arr));
         }
     }
 }

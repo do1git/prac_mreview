@@ -2,10 +2,7 @@ package org.zerock.mreview.mreview.entity;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Builder
@@ -20,4 +17,13 @@ public class Movie extends BaseEntity {
     private Long mno;
 
     private String title;
+
+    private String contents;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Member member;
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
 }

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
+
+    <th:block th:fragment="content">
+
+        <h1 class="mt-4">게시글읽기</h1>
+
+
+        <div class="form-group">
+            <label>제목</label>
+            <input type="text" class="form-control" name="title" th:value="${dto.title}" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>댓글갯수 </label>
+            <input type="text" class="form-control" name="title" th:value="${dto.reviewCnt}" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>기분 (최대 5점) </label>
+            <input type="text" class="form-control" name="title" th:value="${dto.avg}" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>내용</label>
+            <input type="text" class="form-control" name="title" th:value="${dto.contents}" readonly>
+        </div>
+
+        <style>
+            .uploadResult {
+                width: 100%;
+                background-color: gray;
+                margin-top: 10px;
+            }
+
+            .uploadResult ul {
+                display: flex;
+                flex-flow: row;
+                justify-content: center;
+                align-items: center;
+                vertical-align: top;
+                overflow: auto;
+            }
+
+            .uploadResult ul li {
+                list-style: none;
+                padding: 10px;
+                margin-left: 2em;
+            }
+
+            .uploadResult ul li img {
+                width: 100px;
+            }
+        </style>
+
+
+        <div class="uploadResult">
+            <ul>
+                <li th:each="movieImage: ${dto.imageDTOList}" th:data-file="${movieImage.getThumbnailURL()}">
+                    <img th:if="${movieImage.path != null}"
+                         th:src="|/display?fileName=${movieImage.getThumbnailURL()}|">
+                </li>
+            </ul>
+        </div>
+
+
+        <button type="button" class="btn btn-primary">
+            <span>댓글갯수</span>
+            <span class="badge badge-light">[[${dto.reviewCnt}]]</span>
+        </button>
+
+        <button type="button" class="btn btn-info addReviewBtn">
+            댓글 남기기
+        </button>
+
+        <div class="list-group reviewList">
+
+        </div>
+
+
+        <div class="reviewModal modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Movie Review</h5>
+
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>답글 작성자의 정수아이디</label>
+                            <input type="text" class="form-control" name="mid">
+                        </div>
+                        <div class="form-group">
+                            <label>공감도 <span class="grade"></span></label>
+                            <div class='starrr'></div>
+                        </div>
+                        <div class="form-group">
+                            <label>답글내용</label>
+                            <input type="text" class="form-control" name="text" placeholder="유익한 내용이네요~^^">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+                        <button type="button" class="btn btn-primary reviewSaveBtn">저장</button>
+                        <button type="button" class="btn btn-warning modifyBtn">수정</button>
+                        <button type="button" class="btn btn-danger removeBtn">삭제</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="imageModal modal " tabindex="-2" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">사진</h5>
+
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <script th:src="@{/starrr.js}"></script>
+        <link th:href="@{/css/starrr.css}" rel="stylesheet">
+        <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.min.css">
+
+        <script>
+            $(document).ready(function (e) {
+
+                var grade = 0;
+                var mno = [[${dto.mno}]];
+
+                $('.starrr').starrr({
+                    rating: grade,
+                    change: function (e, value) {
+                        if (value) {
+                            console.log(value);
+                            grade = value;
+                        }
+                    }
+                });
+
+                //$(".reviewModal").modal("show"); 미리 보기용
+
+                var reviewModal = $(".reviewModal");
+                var inputMid = $('input[name="mid"]');
+                var inputText = $('input[name="text"]');
+
+
+                $(".addReviewBtn").click(function () {
+                    inputMid.val("");
+                    inputText.val("");
+
+                    $(".removeBtn ,  .modifyBtn").hide();
+                    $(".reviewSaveBtn").show();
+
+                    reviewModal.modal('show');
+                });
+
+
+                $('.reviewSaveBtn').click(function () {
+
+                    var data = {mno: mno, grade: grade, text: inputText.val(), mid: inputMid.val()};
+
+                    console.log(data);
+
+                    $.ajax({
+                        url: '/reviews/' + mno,
+                        type: "POST",
+                        data: JSON.stringify(data),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "text",
+                        success: function (result) {
+
+                            console.log("result: " + result);
+
+                            self.location.reload();
+
+                        }
+                    })
+                    reviewModal.modal('hide');
+
+                });
+
+
+                //페이지가 열리면 바로 리뷰 데이터들을 가져와서 사용한다.
+                function getMovieReviews() {
+
+                    function formatTime(str) {
+                        var date = new Date(str);
+
+                        return date.getFullYear() + '/' +
+                            (date.getMonth() + 1) + '/' +
+                            date.getDate() + ' ' +
+                            date.getHours() + ':' +
+                            date.getMinutes();
+                    }
+
+                    $.getJSON("/reviews/" + mno + "/all", function (arr) {
+                        var str = "";
+
+                        $.each(arr, function (idx, review) {
+
+                            str = `<br /><div class="card-body" data-reviewnum="${review.reviewnum}" data-mid="${review.mid}">
+                                                <h5 class="card-title">${review.text}<span>(공감도: ${review.grade})</span></h5>
+                                                <h6 class="card-subtitle mb-2 text-muted">${idx + 1}번째 답글</h6>
+                                                <p class="card-text">${formatTime(review.regDate)}</p>
+                                                <button class="midifyModal">수정하기</button>
+                                           </div>`
+                        });
+
+                        $(".reviewList").html(str);
+                    });
+                }
+
+                getMovieReviews();
+
+
+                //modify reveiw
+
+                var reviewnum;
+
+                $(".reviewList").on("click", ".card-body", function () {
+                    console.log("??");
+                    $(".reviewSaveBtn").hide();
+                    $(".removeBtn , .modifyBtn").show();
+
+                    var targetReview = $(this);
+
+                    reviewnum = targetReview.data("reviewnum");
+                    console.log("reviewnum: " + reviewnum);
+                    inputMid.val(targetReview.data("mid"));
+                    inputText.val(targetReview.find('.card-title').clone().children().remove().end().text());
+
+                    var grade = targetReview.find('.card-title span').html();
+                    $(".starrr a:nth-child(" + grade + ")").trigger('click');
+
+                    $('.reviewModal').modal('show');
+                });
+
+
+                $(".modifyBtn").on("click", function () {
+
+                    var data = {
+                        reviewnum: reviewnum,
+                        mno: mno,
+                        grade: grade,
+                        text: inputText.val(),
+                        mid: inputMid.val()
+                    };
+
+                    console.log(data);
+
+                    $.ajax({
+                        url: '/reviews/' + mno + "/" + reviewnum,
+                        type: "PUT",
+                        data: JSON.stringify(data),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "text",
+                        success: function (result) {
+
+                            console.log("result: " + result);
+
+                            self.location.reload();
+
+                        }
+                    })
+                    reviewModal.modal('hide');
+                });
+
+                $(".removeBtn").on("click", function () {
+
+                    var data = {reviewnum: reviewnum};
+
+                    console.log(data);
+
+                    $.ajax({
+                        url: '/reviews/' + mno + "/" + reviewnum,
+                        type: "DELETE",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "text",
+                        success: function (result) {
+
+                            console.log("result: " + result);
+
+                            self.location.reload();
+
+                        }
+                    })
+                    reviewModal.modal('hide');
+                });
+
+                $(".uploadResult li").click(function () {
+
+                    var file = $(this).data('file');
+                    const fullSizeFile = file.replace("s_", "");
+
+                    console.log(fullSizeFile);
+
+                    $('.imageModal .modal-body').html("<img style='width:100%' src='/display?fileName=" + fullSizeFile + "&size=1' >")
+
+                    $(".imageModal").modal("show");
+
+                });
+
+
+            });
+        </script>
+
+    </th:block>
+
+</th:block>
+</html>
