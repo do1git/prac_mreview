@@ -3,10 +3,7 @@ package org.zerock.mreview.mreview.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-import org.zerock.mreview.mreview.dto.MovieDTO;
-import org.zerock.mreview.mreview.dto.MovieImageDTO;
-import org.zerock.mreview.mreview.dto.PageRequestDTO;
-import org.zerock.mreview.mreview.dto.PageResultDTO;
+import org.zerock.mreview.mreview.dto.*;
 import org.zerock.mreview.mreview.entity.Movie;
 import org.zerock.mreview.mreview.entity.MovieImage;
 
@@ -17,6 +14,8 @@ import java.util.stream.Collectors;
 
 public interface MovieService {
     Long register(MovieDTO movieDTO, Long member_id);
+
+    void modify(MovieDTO movieDTO);
 
     PageResultDTO<MovieDTO, Object[]> getList(PageRequestDTO requestDTO);
 

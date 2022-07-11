@@ -19,7 +19,7 @@
         </div>
 
         <div class="form-group">
-            <label>기분 (최대 5점) </label>
+            <label>타인의 공감도 (최대 5점) </label>
             <input type="text" class="form-control" name="title" th:value="${dto.avg}" readonly>
         </div>
 
@@ -73,6 +73,10 @@
 
         <button type="button" class="btn btn-info addReviewBtn">
             댓글 남기기
+        </button>
+
+        <button type="button" style="background-color: lightpink" class="btn btn-info modifyBoardBtn">
+            글 수정하기
         </button>
 
         <div class="list-group reviewList">
@@ -216,11 +220,10 @@
 
                         $.each(arr, function (idx, review) {
 
-                            str = `<br /><div class="card-body" data-reviewnum="${review.reviewnum}" data-mid="${review.mid}">
-                                                <h5 class="card-title">${review.text}<span>(공감도: ${review.grade})</span></h5>
+                            str += `<br /><div class="card-body" data-reviewnum="${review.reviewnum}" data-mid="${review.mid}">
+                                                <h5 class="card-title">${review.text}<span>(공감도: <span>${review.grade}</span>)</span></h5>
                                                 <h6 class="card-subtitle mb-2 text-muted">${idx + 1}번째 답글</h6>
                                                 <p class="card-text">${formatTime(review.regDate)}</p>
-                                                <button class="midifyModal">수정하기</button>
                                            </div>`
                         });
 
@@ -236,18 +239,20 @@
                 var reviewnum;
 
                 $(".reviewList").on("click", ".card-body", function () {
-                    console.log("??");
                     $(".reviewSaveBtn").hide();
                     $(".removeBtn , .modifyBtn").show();
 
                     var targetReview = $(this);
+                    console.log(targetReview);
 
                     reviewnum = targetReview.data("reviewnum");
                     console.log("reviewnum: " + reviewnum);
                     inputMid.val(targetReview.data("mid"));
-                    inputText.val(targetReview.find('.card-title').clone().children().remove().end().text());
+                    inputText.val(targetReview.find('.card-title').clone()
+                        .children().remove().end().text());
 
-                    var grade = targetReview.find('.card-title span').html();
+                    var grade = targetReview.find('.card-title span span').html();
+                    console.log(`.starrr a:nth-child(${grade})`);
                     $(".starrr a:nth-child(" + grade + ")").trigger('click');
 
                     $('.reviewModal').modal('show');
@@ -255,7 +260,6 @@
 
 
                 $(".modifyBtn").on("click", function () {
-
                     var data = {
                         reviewnum: reviewnum,
                         mno: mno,
@@ -318,8 +322,13 @@
 
                 });
 
+                $(".modifyBoardBtn").click(function(){
+                    $(location).attr('href', `/movie/modify?mno=${mno}`);
+                })
 
             });
+
+
         </script>
 
     </th:block>

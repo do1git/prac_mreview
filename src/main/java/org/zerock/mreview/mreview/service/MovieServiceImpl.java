@@ -13,6 +13,7 @@ import org.zerock.mreview.mreview.dto.PageResultDTO;
 import org.zerock.mreview.mreview.entity.Member;
 import org.zerock.mreview.mreview.entity.Movie;
 import org.zerock.mreview.mreview.entity.MovieImage;
+import org.zerock.mreview.mreview.entity.Review;
 import org.zerock.mreview.mreview.repository.MemberRepository;
 import org.zerock.mreview.mreview.repository.MovieImageRepository;
 import org.zerock.mreview.mreview.repository.MovieRepository;
@@ -52,6 +53,22 @@ public class MovieServiceImpl implements MovieService {
         });
         return movie.getMno();
     }
+
+    @Override
+    public void modify(MovieDTO movieDTO){
+        Optional<Movie> result = movieRepository.findById(movieDTO.getMno());
+
+        if (result.isPresent()) {
+            Movie movie = result.get();
+
+            movie.setTitle(movieDTO.getTitle());
+            movie.setContents(movieDTO.getContents());
+
+            movieRepository.save(movie);
+        }
+
+    }
+
 
     @Override
     public PageResultDTO<MovieDTO, Object[]> getList(PageRequestDTO requestDTO) {

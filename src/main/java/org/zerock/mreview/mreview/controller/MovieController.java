@@ -15,8 +15,8 @@ import org.zerock.mreview.mreview.service.MovieService;
 
 @Controller
 @RequestMapping("/movie")
-@Log4j2
 @RequiredArgsConstructor
+@Log4j2
 public class MovieController {
 
     private final MovieService movieService;
@@ -57,5 +57,14 @@ public class MovieController {
         MovieDTO movieDTO = movieService.getMovie(mno);
 
         model.addAttribute("dto", movieDTO);
+    }
+
+    @PostMapping("/modify")
+    public String modify(long mno, MovieDTO movieDTO, RedirectAttributes redirectAttributes) {
+        log.info("modify movie");
+
+        movieService.modify(movieDTO);
+        return "redirect:/movie/read?mno="+mno;
+
     }
 }

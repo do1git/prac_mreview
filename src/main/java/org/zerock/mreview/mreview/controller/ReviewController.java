@@ -53,7 +53,7 @@ public class ReviewController {
         return new ResponseEntity<>(reviewnum, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{mno}/{review}")
+    @DeleteMapping("/{mno}/{reviewnum}")
     public ResponseEntity<Long> removeReview(@PathVariable Long reviewnum) {
         log.info("--------modify removeReview-------------");
         log.info("reviewnum: " + reviewnum);
